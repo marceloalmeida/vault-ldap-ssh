@@ -1,0 +1,22 @@
+---
+- name: Enable Audit to file
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/sys/audit/audit"
+    timeout: 5
+    method: PUT
+    body_format: json
+    body: |-
+      {
+        "description": "Audit to file",
+        "type": "file",
+        "options": {
+          "file_path": "/var/log/vault_audit.log",
+          "mode": "644"
+        }
+      }
+    return_content: false
+    status_code: 204
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes

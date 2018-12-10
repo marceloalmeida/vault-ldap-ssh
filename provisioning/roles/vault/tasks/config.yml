@@ -1,0 +1,16 @@
+---
+- name: Template vault config to server
+  template:
+    src: etc/vault/config.hcl
+    dest: /etc/vault/config.hcl
+
+- name: Copy vault service to server
+  template:
+    src: etc/systemd/system/vault.service
+    dest: /etc/systemd/system/vault.service
+
+- name: Start vault service
+  systemd:
+    state: started
+    name: vault
+    daemon_reload: yes

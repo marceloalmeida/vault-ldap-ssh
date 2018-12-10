@@ -1,0 +1,40 @@
+---
+- name: Checking for Vault running
+  wait_for: 
+    timeout: 3
+    sleep: 2
+    host: "{{ hostvars[item]['ansible_ssh_host'] }}"
+    port: 8200
+  with_items:
+    - "{{ groups['vault'] }}"
+
+- name: Fetch public CA key
+  uri:
+    url: "http://{{ hostvars[item]['ansible_ssh_host'] }}:8200/v1/ssh-client-signer/public_key"
+    timeout: 5
+    method: GET
+    body_format: json
+    return_content: true
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+  register: result
+  ignore_errors: no
+  with_items:
+    - "{{ groups['vault'] }}"
+
+- name: Provision trusted user ca keys
+  lineinfile:
+    path: "/etc/ssh/trusted-user-ca-keys.pem"
+    state: present
+    create: yes
+    regexp: 'ssh-rsa.*'
+    line: "{{ result.results.0.content }}" 
+
+- name: Configure SSHd with TrustedUserCAKeys
+  lineinfile:
+    path: "/etc/ssh/sshd_config"
+    state: present
+    regexp: 'TrustedUserCAKeys.*'
+    line: "TrustedUserCAKeys /etc/ssh/trusted-user-ca-keys.pem" 
+  notify: restart ssh

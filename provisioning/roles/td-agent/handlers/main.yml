@@ -1,0 +1,7 @@
+---
+- name: restart td-agent
+  systemd:
+    name: td-agent
+    state: restarted
+    enabled: yes
+  when: "ansible_service_mgr == 'systemd'"

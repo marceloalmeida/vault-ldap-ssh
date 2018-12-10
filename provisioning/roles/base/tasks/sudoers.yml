@@ -1,0 +1,6 @@
+- name: Make sure group admins is in the sudoers configuration
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: "^%admins"
+    line: "%admins ALL=(ALL) NOPASSWD:ALL"

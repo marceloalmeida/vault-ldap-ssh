@@ -1,0 +1,10 @@
+- name: Copy openldap service to server
+  template:
+    src: etc/systemd/system/openldap.service
+    dest: /etc/systemd/system/openldap.service
+
+- name: Start openldap service
+  systemd:
+    state: started
+    name: openldap
+    daemon_reload: yes

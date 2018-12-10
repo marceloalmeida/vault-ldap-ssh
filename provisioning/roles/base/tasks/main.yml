@@ -1,0 +1,14 @@
+---
+- name: Install base pkg
+  apt:
+    update_cache: yes
+    state: present
+    pkg:
+      - vim
+      - curl
+      - htop
+      - apt-transport-https
+
+- import_tasks: groups.yml
+- import_tasks: users.yml
+- import_tasks: sudoers.yml

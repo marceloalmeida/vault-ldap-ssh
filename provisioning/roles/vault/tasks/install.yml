@@ -1,0 +1,36 @@
+---
+- name: Set checksum facts
+  set_fact:
+     fact_vaultbin: "dc6beadcf0283b084d5e3d5c6683c4b6a7e44aa0a0209567b9a0ba13afb3e162"
+
+- name: Install base pkg
+  apt:
+    update_cache: yes
+    state: present
+    pkg:
+      - vim
+      - curl
+      - htop
+      - unzip
+
+- name: Stat the /usr/bin/vault
+  stat:
+    path: "/usr/bin/vault"
+    get_checksum: yes
+    checksum_algorithm: sha256
+  register: vaultbin
+
+- name: Download and install vault binary
+  unarchive:
+    src: "https://releases.hashicorp.com/vault/{{ vault.version }}/vault_{{ vault.version }}_linux_amd64.zip"
+    dest: /usr/bin/
+    remote_src: True
+  when: vaultbin.stat.checksum|default('none') != fact_vaultbin
+
+- name: Create vault config directory
+  file:
+    state: directory
+    path: "{{ item }}"
+  with_items:
+    - "/etc/vault/"
+    - "/var/lib/vault/data"

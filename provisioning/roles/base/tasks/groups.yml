@@ -1,0 +1,8 @@
+---
+- name: Create groups
+  group:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - "developers"
+    - "admins"

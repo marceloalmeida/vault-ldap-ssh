@@ -1,0 +1,8 @@
+[vault]
+vault01 ansible_ssh_host=192.168.33.22
+[ssh]
+ssh01 ansible_ssh_host=192.168.33.23
+[es]
+es01 ansible_ssh_host=192.168.33.24
+[kibana]
+es01 ansible_ssh_host=192.168.33.24

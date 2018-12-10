@@ -1,0 +1,42 @@
+---
+- name: Add apt key
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+- name: Add apt repository
+  apt_repository:
+    filename: elastic-6.x
+    repo: "deb https://artifacts.elastic.co/packages/6.x/apt stable main"
+
+- name: Install ES and Kibana
+  apt:
+    update_cache: yes
+    state: present
+    pkg:
+      - elasticsearch
+      - kibana-oss
+
+- name: Make ES accesible
+  lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: '^#?network.host:.*'
+    line: 'network.host: 0.0.0.0'
+  notify: restart elasticsearch
+
+- name: Make Kibana accesible
+  lineinfile:
+    path: /etc/kibana/kibana.yml
+    regexp: '^#?server.host:.*'
+    line: 'server.host: "0.0.0.0"'
+  notify: restart kibana
+
+- name: Install ingest-geoip plugin
+  elasticsearch_plugin:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - ingest-geoip
+    - ingest-attachment
+
+- name: Flush handlers
+  meta: flush_handlers

@@ -1,0 +1,8 @@
+---
+- hosts: vault
+  roles:
+    - base
+    - vault
+    - td-agent
+    - ldap
+    - ssh

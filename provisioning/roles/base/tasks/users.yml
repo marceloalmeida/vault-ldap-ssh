@@ -1,0 +1,9 @@
+- name: Create users and add him to groups
+  user:
+    name: "{{ item }}"
+    group: "{{ item }}"
+    append: yes
+    shell: /bin/bash
+  with_items:
+    - admins
+    - developers

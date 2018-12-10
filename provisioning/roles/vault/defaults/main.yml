@@ -1,0 +1,10 @@
+vault:
+  version: 0.11.5
+  dev_root_token_id: "mysecrettoken"
+ldap:
+  binddn: "cn=admin,dc=thesimpsons,dc=com"
+  bindpass: "password"
+  userdn: "ou=character,dc=thesimpsons,dc=com"
+  userattr: "cn"
+  groupdn: "ou=families,dc=thesimpsons,dc=com"
+  groupattr: "cn"

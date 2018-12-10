@@ -1,0 +1,6 @@
+---
+- hosts: ssh
+  roles:
+    - base
+    - ssh
+    - td-agent

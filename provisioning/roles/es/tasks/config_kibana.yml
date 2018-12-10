@@ -1,0 +1,51 @@
+---
+- name: Checking for ES running
+  wait_for:
+    timeout: 60
+    sleep: 2
+    host: "{{ ansible_host }}"
+    port: 9200
+
+- name: Create index Kibana pattern
+  uri:
+    url: "http://{{ ansible_host }}:9200/.kibana/doc/index-pattern:logstash*"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "type" : "index-pattern",
+        "index-pattern" : {
+          "title": "logstash*",
+          "timeFieldName": "@timestamp"
+        }
+      }
+    return_content: false
+    status_code: 200,201
+    headers:
+      Content-Type: "application/json"
+
+- name: Checking for Kibana running
+  wait_for:
+    timeout: 30
+    sleep: 2
+    host: "{{ ansible_host }}"
+    port: 5601
+
+- name: Make logstash the default index
+  uri:
+    url: "http://{{ ansible_host }}:5601/api/kibana/settings"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "changes": {
+          "defaultIndex":"logstash*"
+        }
+      }
+    return_content: false
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+      kbn-xsrf: "true"

@@ -1,0 +1,7 @@
+- name: Configure td-agent
+  template:
+    src: "{{ item }}"
+    dest: "/{{ item }}"
+  notify: restart td-agent
+  with_items:
+    - etc/td-agent/config.d/vault-audit.conf

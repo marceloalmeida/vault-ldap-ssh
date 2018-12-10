@@ -1,0 +1,167 @@
+---
+- name: Enable SSH secrets engine (client signer)
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/sys/mounts/ssh-client-signer"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "type": "ssh",
+        "description": "Enable SSH secrets engine (client signer)",
+        "config": {
+          "default_lease_ttl": "8h",
+          "max_lease_ttl": "12h"
+        }
+      }
+    return_content: false
+    status_code: 204
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes
+
+- name: Configure SSH secrets engine CA (client signer)
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/ssh-client-signer/config/ca"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "generate_signing_key": "true"
+      }
+    return_content: false
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes
+
+- name: Create Simpson SSH role
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/ssh-client-signer/roles/simpson"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "allow_user_certificates": true,
+        "allow_user_key_ids" : false,
+        "allowed_users": "admins",
+        "default_extensions": [
+          {
+            "permit-agent-forwarding": "",
+            "permit-port-forwarding": "",
+            "permit-pty": ""
+          }
+        ],
+        "key_type": "ca",
+        "default_user": "admin",
+        "ttl": "5m",
+        "max_ttl": "60m",
+        "key_id_format": "{{ '{{' }}token_display_name{{ '}}' }}-{{ '{{' }}role_name{{ '}}' }}-{{ '{{' }}public_key_hash{{ '}}' }}"
+      }
+    return_content: false
+    status_code: 204
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes
+
+- name: Create Flanders SSH role
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/ssh-client-signer/roles/flanders"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "allow_user_certificates": true,
+        "allow_user_key_ids" : false,
+        "allowed_users": "developers",
+        "default_extensions": [
+          {
+            "permit-pty": ""
+          }
+        ],
+        "key_type": "ca",
+        "default_user": "developers",
+        "ttl": "5m",
+        "max_ttl": "10m",
+        "key_id_format": "{{ '{{' }}token_display_name{{ '}}' }}-{{ '{{' }}role_name{{ '}}' }}-{{ '{{' }}public_key_hash{{ '}}' }}"
+      }
+    return_content: false
+    status_code: 204
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes
+
+- name: Create policy to allow family Simpson to sign SSH keys
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/sys/policy/simpson_ssh_sign"
+    timeout: 5
+    method: PUT
+    body_format: json
+    body: |-
+      {
+        "policy": "path \"ssh-client-signer/sign/simpson\" {capabilities = [\"create\", \"update\"]}"
+      }
+    return_content: false
+    status_code: 204
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes
+
+- name: Create policy to allow family Flanders to sign SSH keys
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/sys/policy/flanders_ssh_sign"
+    timeout: 5
+    method: PUT
+    body_format: json
+    body: |-
+      {
+        "policy": "path \"ssh-client-signer/sign/flanders\" {capabilities = [\"create\", \"update\"]}"
+      }
+    return_content: false
+    status_code: 204
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes
+
+- name: Configure LDAP Simpson family
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/auth/ldap/groups/simpson"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "policies": "simpson_ssh_sign"
+      }
+    return_content: false
+    status_code: 204
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes
+
+- name: Configure LDAP Flanders family
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/auth/ldap/groups/flanders"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "policies": "flanders_ssh_sign"
+      }
+    return_content: false
+    status_code: 204
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes

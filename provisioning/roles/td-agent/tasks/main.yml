@@ -1,0 +1,53 @@
+---
+- name: Add apt key
+  apt_key:
+    url: https://packages.treasuredata.com/GPG-KEY-td-agent
+
+- name: Add apt repository
+  apt_repository:
+    filename: treasure-data
+    repo: "deb http://packages.treasuredata.com/3/debian/jessie/ jessie contrib"
+
+- name: Install td-agent
+  apt:
+    update_cache: yes
+    state: present
+    pkg:
+      - td-agent
+  notify: restart td-agent
+
+- name: Create config.d folder
+  file:
+    path: /etc/td-agent/config.d
+    state: directory
+    mode: 0755
+
+- name: Configure td-agent
+  template:
+    src: "{{ item }}"
+    dest: "/{{ item }}"
+  notify: restart td-agent
+  with_items:
+    - etc/td-agent/td-agent.conf
+    - etc/td-agent/config.d/auth.conf
+
+- name: Check if plugins are installed
+  command: "td-agent-gem list -i {{ item }}"
+  with_items:
+    - "{{ td_agent_plugins }}"
+  changed_when: False
+  failed_when: False
+  register: td_plugin_status
+
+- name: Install missing plugins
+  command: "td-agent-gem install {{ item }}"
+  with_items:
+    - "{{ td_agent_plugins }}"
+  when: (td_plugin_status.results[0].stdout|default('false'))|string in 'False,false'
+
+- name: Add the user 'td-agent' to 'adm' group
+  user:
+    name: td-agent
+    #shell: /bin/bash
+    groups: adm
+    append: yes

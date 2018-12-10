@@ -1,0 +1,14 @@
+---
+- name: restart elasticsearch
+  systemd:
+    name: elasticsearch
+    state: restarted
+    enabled: yes
+  when: "ansible_service_mgr == 'systemd'"
+
+- name: restart kibana
+  systemd:
+    name: kibana
+    state: restarted
+    enabled: yes
+  when: "ansible_service_mgr == 'systemd'"

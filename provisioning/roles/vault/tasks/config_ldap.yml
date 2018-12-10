@@ -1,0 +1,53 @@
+---
+- name: Checking for Vault running
+  wait_for: 
+    timeout: 3
+    host: "{{ item }}"
+    port: 8200
+  with_items: "{{ groups['vault'] }}"
+
+- name: Enable LDAP auth method
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/sys/auth/ldap"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "type": "ldap",
+        "description": "Login with LDAP",
+        "config": {
+          "default_lease_ttl": "8h",
+          "max_lease_ttl": "12h"
+        }
+      }
+    return_content: false
+    status_code: 204
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes
+
+- name: Configure LDAP auth method
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/auth/ldap/config"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "binddn": "{{ ldap.binddn }}",
+        "bindpass": "{{ ldap.bindpass }}",
+        "userdn": "{{ ldap.userdn }}",
+        "userattr": "{{ ldap.userattr }}",
+        "groupdn": "{{ ldap.groupdn }}",
+        "groupattr": "{{ ldap.groupattr }}",
+        "insecure_tls": true,
+        "url": "ldap://{{ ansible_host }}:389"
+      }
+    return_content: false
+    status_code: 204
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes
