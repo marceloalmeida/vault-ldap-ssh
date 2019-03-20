@@ -1,6 +1,18 @@
 vault:
   version: 0.11.5
   dev_root_token_id: "mysecrettoken"
+  ca:
+    user:
+      private_key: |-
+        -----BEGIN OPENSSH PRIVATE KEY-----
+        b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+        QyNTUxOQAAACCo3z55FoKl7HbNDwlNuQkkRjyRup1p4DXCUUo5yu+4TwAAAKDOpMjazqTI
+        2gAAAAtzc2gtZWQyNTUxOQAAACCo3z55FoKl7HbNDwlNuQkkRjyRup1p4DXCUUo5yu+4Tw
+        AAAEAiZbvOJPq6NAGjtg8JEtsNxTKS8SFmWMMdGEcm6HFSoKjfPnkWgqXsds0PCU25CSRG
+        PJG6nWngNcJRSjnK77hPAAAAFlZhdWx0IENBIHVzZXIga2V5IHBhaXIBAgMEBQYH
+        -----END OPENSSH PRIVATE KEY-----
+      public_key: |-
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKjfPnkWgqXsds0PCU25CSRGPJG6nWngNcJRSjnK77hP Vault CA user key pair
 ldap:
   binddn: "cn=admin,dc=thesimpsons,dc=com"
   bindpass: "password"

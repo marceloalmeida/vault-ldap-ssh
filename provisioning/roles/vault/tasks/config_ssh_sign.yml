@@ -29,10 +29,11 @@
     body_format: json
     body: |-
       {
-        "generate_signing_key": "true"
+        "private_key": {{ vault.ca.user.private_key | to_json }},
+        "public_key": {{ vault.ca.user.public_key | to_json }}
       }
     return_content: false
-    status_code: 200
+    status_code: 200,204
     headers:
       Content-Type: "application/json"
       X-Vault-Token: "{{ vault.dev_root_token_id }}"

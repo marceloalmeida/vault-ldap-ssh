@@ -30,6 +30,7 @@
     create: yes
     regexp: 'ssh-rsa.*'
     line: "{{ result.results.0.content }}" 
+  notify: restart ssh
 
 - name: Configure SSHd with TrustedUserCAKeys
   lineinfile:
