@@ -50,6 +50,7 @@
         "allow_user_certificates": true,
         "allow_user_key_ids" : false,
         "allowed_users": "admins",
+        "allowed_extensions": "permit-agent-forwarding, permit-port-forwarding, permit-pty",
         "default_extensions": [
           {
             "permit-agent-forwarding": "",
@@ -81,6 +82,43 @@
         "allow_user_certificates": true,
         "allow_user_key_ids" : false,
         "allowed_users": "developers",
+        "allowed_extensions": "permit-pty",
+        "default_extensions": [
+          {
+            "permit-pty": ""
+          }
+        ],
+        "key_type": "ca",
+        "default_user": "developers",
+        "ttl": "5m",
+        "max_ttl": "10m",
+        "key_id_format": "{{ '{{' }}token_display_name{{ '}}' }}-{{ '{{' }}role_name{{ '}}' }}-{{ '{{' }}public_key_hash{{ '}}' }}"
+      }
+    return_content: false
+    status_code: 204
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes
+
+- name: Create Wiggum SSH role
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/ssh-client-signer/roles/wiggum"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "allow_user_certificates": true,
+        "allow_user_key_ids" : false,
+        "allowed_users": "developers",
+        "allowed_extensions": "permit-pty",
+        "allowed_critical_options": "force-command",
+        "default_critical_options": [
+          {
+            "force-command": "date"
+          }
+        ],
         "default_extensions": [
           {
             "permit-pty": ""
@@ -133,6 +171,23 @@
       X-Vault-Token: "{{ vault.dev_root_token_id }}"
   ignore_errors: yes
 
+- name: Create policy to allow family Wiggum to sign SSH keys
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/sys/policy/wiggum_ssh_sign"
+    timeout: 5
+    method: PUT
+    body_format: json
+    body: |-
+      {
+        "policy": "path \"ssh-client-signer/sign/wiggum\" {capabilities = [\"create\", \"update\"]}"
+      }
+    return_content: false
+    status_code: 204
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes
+
 - name: Configure LDAP Simpson family
   uri:
     url: "http://{{ ansible_host }}:8200/v1/auth/ldap/groups/simpson"
@@ -159,6 +214,23 @@
     body: |-
       {
         "policies": "flanders_ssh_sign"
+      }
+    return_content: false
+    status_code: 204
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes
+
+- name: Configure LDAP Wiggum family
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/auth/ldap/groups/wiggum"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "policies": "wiggum_ssh_sign"
       }
     return_content: false
     status_code: 204

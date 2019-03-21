@@ -7,3 +7,13 @@
   with_items:
     - admins
     - developers
+
+- name: Set authorized key without validating the TLS/SSL certificates
+  authorized_key:
+    user: "{{ item }}"
+    state: present
+    key: https://github.com/marceloalmeida.keys
+    validate_certs: False
+  with_items:
+    - admins
+    - developers

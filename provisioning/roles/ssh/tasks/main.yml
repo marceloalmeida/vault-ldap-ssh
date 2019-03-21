@@ -28,7 +28,7 @@
     path: "/etc/ssh/trusted-user-ca-keys.pem"
     state: present
     create: yes
-    regexp: 'ssh-rsa.*'
+    regexp: "{{ result.results.0.content }}"
     line: "{{ result.results.0.content }}" 
   notify: restart ssh
 
