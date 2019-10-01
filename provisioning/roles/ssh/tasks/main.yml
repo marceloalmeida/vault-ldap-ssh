@@ -39,3 +39,53 @@
     regexp: 'TrustedUserCAKeys.*'
     line: "TrustedUserCAKeys /etc/ssh/trusted-user-ca-keys.pem" 
   notify: restart ssh
+
+- name: Read host SSH public key
+  set_fact:
+    host_ssh_public_key: "{{ lookup('file', ssh.host_key_filename + '.pub') }}"
+
+- name: Sign host SSH public key
+  uri:
+    url: "http://{{ hostvars[item]['ansible_ssh_host'] }}:8200/v1/ssh-host-signer/sign/host"
+    timeout: 5
+    method: PUT
+    body_format: json
+    body: |-
+      {
+        "cert_type": "host",
+        "public_key": {{ ansible_ssh_host_key_ed25519_public | default(host_ssh_public_key) | to_json }}
+      }
+    return_content: true
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: no
+  register: host_signed_key
+  with_items:
+    - "{{ groups['vault'] }}"
+
+- name: Configure HostCertificate
+  lineinfile:
+    path: "{{ ssh.host_key_filename }}-cert.pub"
+    state: present
+    regexp: '.*'
+    line: "{{ host_signed_key.results.0.json.data.signed_key }}"
+    create: true
+  notify: restart ssh
+
+- name: Configure SSHd with HostKey
+  lineinfile:
+    path: "/etc/ssh/sshd_config"
+    state: present
+    regexp: 'HostKey.*'
+    line: "HostKey {{ ssh.host_key_filename }}"
+  notify: restart ssh
+
+- name: Configure SSHd with HostCertificate
+  lineinfile:
+    path: "/etc/ssh/sshd_config"
+    state: present
+    regexp: 'HostCertificate.*'
+    line: "HostCertificate {{ ssh.host_key_filename }}-cert.pub"
+  notify: restart ssh

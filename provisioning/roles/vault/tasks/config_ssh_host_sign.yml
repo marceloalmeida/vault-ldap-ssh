@@ -1,0 +1,72 @@
+---
+- name: Enable SSH secrets engine (client signer)
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/sys/mounts/ssh-host-signer"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "type": "ssh",
+        "description": "Enable SSH secrets engine (host signer)",
+        "config": {
+          "default_lease_ttl": "87600h",
+          "max_lease_ttl": "87600h"
+        }
+      }
+    return_content: false
+    status_code: 204,400
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes
+
+- name: Configure SSH secrets engine CA (host signer)
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/ssh-host-signer/config/ca"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "private_key": {{ vault.ca.user.private_key | to_json }},
+        "public_key": {{ vault.ca.user.public_key | to_json }}
+      }
+    return_content: false
+    status_code: 200,204,500
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes
+
+- name: Create host SSH role
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/ssh-host-signer/roles/host"
+    timeout: 5
+    method: POST
+    body_format: json
+    body: |-
+      {
+        "allow_user_certificates": false,
+        "allow_host_certificates": true,
+        "allow_user_key_ids" : false,
+        "allowed_domain": "localdomain",
+        "allowed_extensions": "permit-agent-forwarding, permit-port-forwarding, permit-pty",
+        "default_extensions": [
+          {
+            "permit-agent-forwarding": "",
+            "permit-port-forwarding": "",
+            "permit-pty": ""
+          }
+        ],
+        "key_type": "ca",
+        "ttl": "87600h",
+        "max_ttl": "87600h",
+        "key_id_format": "{{ '{{' }}token_display_name{{ '}}' }}-{{ '{{' }}role_name{{ '}}' }}-{{ '{{' }}public_key_hash{{ '}}' }}"
+      }
+    return_content: false
+    status_code: 204
+    headers:
+      Content-Type: "application/json"
+      X-Vault-Token: "{{ vault.dev_root_token_id }}"
+  ignore_errors: yes

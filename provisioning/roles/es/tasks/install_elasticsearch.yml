@@ -14,7 +14,7 @@
     state: present
     pkg:
       - elasticsearch
-      - kibana-oss
+      - kibana
 
 - name: Make ES accesible
   lineinfile:
@@ -30,13 +30,13 @@
     line: 'server.host: "0.0.0.0"'
   notify: restart kibana
 
-- name: Install ingest-geoip plugin
-  elasticsearch_plugin:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - ingest-geoip
-    - ingest-attachment
+#- name: Install ES plugins
+#  elasticsearch_plugin:
+#    name: "{{ item }}"
+#    state: present
+#  with_items:
+#    - ingest-geoip
+#    - ingest-attachment
 
 - name: Flush handlers
   meta: flush_handlers

@@ -1,3 +1,5 @@
 vault:
   version: 0.11.5
   dev_root_token_id: "mysecrettoken"
+ssh:
+  host_key_filename: /etc/ssh/ssh_host_ed25519_key

@@ -15,7 +15,7 @@
         }
       }
     return_content: false
-    status_code: 204
+    status_code: 204,400
     headers:
       Content-Type: "application/json"
       X-Vault-Token: "{{ vault.dev_root_token_id }}"

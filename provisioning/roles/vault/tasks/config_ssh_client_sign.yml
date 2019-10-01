@@ -15,7 +15,7 @@
         }
       }
     return_content: false
-    status_code: 204
+    status_code: 204,400
     headers:
       Content-Type: "application/json"
       X-Vault-Token: "{{ vault.dev_root_token_id }}"
@@ -33,7 +33,7 @@
         "public_key": {{ vault.ca.user.public_key | to_json }}
       }
     return_content: false
-    status_code: 200,204
+    status_code: 200,204,500
     headers:
       Content-Type: "application/json"
       X-Vault-Token: "{{ vault.dev_root_token_id }}"

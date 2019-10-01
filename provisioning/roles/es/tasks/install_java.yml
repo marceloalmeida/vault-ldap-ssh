@@ -2,7 +2,7 @@
 - name: Add apt key by id from a keyserver
   apt_key:
     keyserver: hkp://keyserver.ubuntu.com:80
-    id: EEA14886
+    id: C2518248EEA14886
 
 - name: Add apt repository
   apt_repository:
@@ -22,6 +22,5 @@
     update_cache: yes
     state: present
     pkg:
-      - oracle-java8-installer
+      - openjdk-8-jre-headless
       - ca-certificates
-      - oracle-java8-set-default

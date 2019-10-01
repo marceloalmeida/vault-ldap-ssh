@@ -8,10 +8,13 @@ export VAULT_TOKEN='mysecrettoken'
 
 ```bash
 vault login -method=ldap username=homer password=password
+vault login -method=ldap username=ned password=password
+vault login -method=ldap username=ralph password=password
 ```
 
 ```bash
-vault write -field=signed_key ssh-client-signer/sign/simpson valid_principals=vagrant public_key=@$HOME/.ssh/id_ed25519.pub > $HOME/.ssh/id_ed25519-cert.pub
+vault write -field=signed_key ssh-client-signer/sign/simpson valid_principals=admins public_key=@$HOME/.ssh/id_ed25519.pub | tee $HOME/.ssh/id_ed25519-cert.pub
+vault write -field=signed_key ssh-client-signer/sign/flanders valid_principals=developers public_key=@$HOME/.ssh/id_ed25519.pub | tee $HOME/.ssh/id_ed25519-cert.pub
 ```
 
 ```bash
@@ -19,7 +22,8 @@ ssh-keygen -Lf $HOME/.ssh/id_ed25519-cert.pub
 ```
 
 ```bash
-ssh vagrant@192.168.33.23 -i ~/.ssh/id_ed25519 -i ~/.ssh/id_ed25519-cert.pub
+ssh 192.168.33.23 -l admins -i ~/.ssh/id_ed25519 -i ~/.ssh/id_ed25519-cert.pub
+ssh 192.168.33.23 -l developers -i ~/.ssh/id_ed25519 -i ~/.ssh/id_ed25519-cert.pub
 ```
 
 # Sources

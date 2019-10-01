@@ -3,4 +3,5 @@
 - import_tasks: config.yml
 - import_tasks: config_audit.yml
 - import_tasks: config_ldap.yml
-- import_tasks: config_ssh_sign.yml
+- import_tasks: config_ssh_client_sign.yml
+- import_tasks: config_ssh_host_sign.yml

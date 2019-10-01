@@ -12,7 +12,7 @@ vault:
         PJG6nWngNcJRSjnK77hPAAAAFlZhdWx0IENBIHVzZXIga2V5IHBhaXIBAgMEBQYH
         -----END OPENSSH PRIVATE KEY-----
       public_key: |-
-        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKjfPnkWgqXsds0PCU25CSRGPJG6nWngNcJRSjnK77hP Vault CA user key pair
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKjfPnkWgqXsds0PCU25CSRGPJG6nWngNcJRSjnK77hP Vault CA key
 ldap:
   binddn: "cn=admin,dc=thesimpsons,dc=com"
   bindpass: "password"
