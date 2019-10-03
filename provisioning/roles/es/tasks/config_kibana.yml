@@ -24,6 +24,10 @@
     status_code: 200,201
     headers:
       Content-Type: "application/json"
+  register: _result
+  until: _result.status == 200
+  retries: 5
+  delay: 5
 
 - name: Checking for Kibana running
   wait_for:
@@ -49,3 +53,7 @@
     headers:
       Content-Type: "application/json"
       kbn-xsrf: "true"
+  register: _result
+  until: _result.status == 200
+  retries: 5
+  delay: 5
